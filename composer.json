@@ -1,0 +1,29 @@
+{
+	"name": "zixsi/jsonrpc",
+	"description": "PHP JSON-RPC 2.0 Server Implementation",
+	"keywords": ["jsonrpc", "json-rpc"],
+	"type": "library",
+	"license": "MIT",
+	"homepage":"https://github.com/zixsihub/jsonrpc/",
+	"autoload": {
+		"psr-4": {
+			"Zixsihub\\JsonRpc\\": "src/"
+		},
+		"exclude-from-classmap": [
+			"/Tests/"
+		]
+	},
+	"authors": [
+		{
+			"name": "Dmitriy Limansky",
+			"email": "zixxsi@gmail.com"
+		}
+	],
+	"require": {
+		 "php":">=7.2.0",
+		"ext-json": "*"
+	},
+	"require-dev":{
+		"phpunit/phpunit": "~5.7"
+	}
+}
