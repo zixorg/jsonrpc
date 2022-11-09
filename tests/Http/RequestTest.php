@@ -53,6 +53,6 @@ class RequestTest extends TestCase
 		$this->assertObjectHasAttribute('param1', $this->request->getParsedBody());
 		
 		$this->request->withBody('[1, 2]');
-		$this->assertInternalType(PHPUnit_Framework_Constraint_IsType::TYPE_ARRAY, $this->request->getParsedBody());
+		$this->assertIsArray($this->request->getParsedBody());
 	}
 }

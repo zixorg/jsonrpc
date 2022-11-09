@@ -10,7 +10,7 @@ class ResponseDataTest extends TestCase
 	{
 		$data = new ResponseData(true, 1);
 
-		$this->assertInternalType(PHPUnit_Framework_Constraint_IsType::TYPE_ARRAY, $data->toArray());
+		$this->assertIsArray($data->toArray());
 	}
 	
 	public function testStructure()

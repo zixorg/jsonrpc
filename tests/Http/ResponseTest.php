@@ -28,7 +28,7 @@ class ResponseTest extends TestCase
 	
 	public function testHeaders()
 	{
-		$this->assertInternalType(PHPUnit_Framework_Constraint_IsType::TYPE_ARRAY, $this->response->getHeaders());
+		$this->assertIsArray($this->response->getHeaders());
 		$this->assertEquals([], $this->response->getHeaders());
 		
 		$this->response->withHeader('key', 'value');

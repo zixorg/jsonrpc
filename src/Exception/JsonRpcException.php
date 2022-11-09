@@ -2,7 +2,10 @@
 
 namespace Zixsihub\JsonRpc\Exception;
 
-class JsonRpcException extends \Exception
+use Exception;
+use Throwable;
+
+class JsonRpcException extends Exception
 {
 
 	/** @var mixed|null */
@@ -14,7 +17,7 @@ class JsonRpcException extends \Exception
 	 * @param mixed|null $data
 	 * @param Throwable|null $previous
 	 */
-	public function __construct(string $message = "", int $code = 0, $data = null, ?Throwable $previous = null)
+	public function __construct(string $message = '', int $code = 0, $data = null, ?Throwable $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 

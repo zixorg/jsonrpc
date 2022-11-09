@@ -22,12 +22,12 @@ class Registry implements RegistryInterface
 
 	/**
 	 * @param string $name
-	 * @param string|object $instance
+	 * @param mixed $instance
 	 * @return RegistryInterface
 	 */
 	public function add(string $name, $instance): RegistryInterface
 	{
-		if (!is_string($instance) && !is_object($instance)) {
+		if ((!is_string($instance) && !is_object($instance)) || empty($instance)) {
 			throw new RuntimeException("Invalid class definition");
 		}
 
@@ -74,11 +74,16 @@ class Registry implements RegistryInterface
 		if (!$this->has($namespace)) {
 			throw new JsonRpcException('Method not found', -32601);
 		}
-
-		$this->instancesMap[$namespace] = 
-			is_string($this->classMap[$namespace]) 
-			? new $this->classMap[$namespace] 
-			: $this->classMap[$namespace];
+		
+		$class = $this->classMap[$namespace];
+		
+		if (is_string($class) && class_exists($class)) {
+			$this->instancesMap[$namespace] = new $class;
+		} elseif (is_object($class)) {
+			$this->instancesMap[$namespace] = $class;
+		} else {
+			throw new JsonRpcException('Method not found', -32601);
+		}
 
 		return $this->instancesMap[$namespace];
 	}
@@ -91,7 +96,7 @@ class Registry implements RegistryInterface
 	 */
 	protected function getReflectionMethod(object $instance, RequestData $data): ReflectionMethod
 	{
-		if (!method_exists($instance, $data->getMethodActionName())) {
+		if (empty($data->getMethodActionName()) || !method_exists($instance, $data->getMethodActionName())) {
 			throw new JsonRpcException('Method not found', -32601);
 		}
 		

@@ -19,13 +19,13 @@ class Server
 	/** @var HandlerInterface */
 	private $handler;
 	
-	/** Registry\RegistryInterface */
+	/** @var RegistryInterface */
 	private $registry;
 	
 	/** @var MessagesInterface */
 	private $messages;
 	
-	/** @var MiddlewareInterface */
+	/** @var MiddlewareInterface[] */
 	private $middlewares = [];
 	
 	/**
@@ -72,7 +72,7 @@ class Server
 	public function registerMessages(array $map): self
 	{
 		foreach ($map as $code => $message) {
-			$this->messages->add((int) $code, (string) $message);
+			$this->messages->add($code, $message);
 		}
 		
 		return $this;

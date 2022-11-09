@@ -24,7 +24,7 @@ class PrettyMiddleware implements MiddlewareInterface
 		}
 		
 		$json = json_encode(
-			json_decode($response->getBody()),
+			json_decode((string) $response->getBody()),
 			JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT
 		);
 		

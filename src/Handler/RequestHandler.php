@@ -94,14 +94,15 @@ class RequestHandler implements HandlerInterface
 	private function makeDataPool(RequestInterface $request): array
 	{
 		$this->batch = is_array($request->getParsedBody());
+		$body = $request->getParsedBody();
 
-		if (!is_array($request->getParsedBody())) {
-			return [new RequestData($request->getParsedBody())];
+		if (!is_array($body)) {
+			return [new RequestData($body)];
 		}
 
 		$pool = [];
 
-		foreach ($request->getParsedBody() as $data) {
+		foreach ($body as $data) {
 			$pool[] = new RequestData($data);
 		}
 
@@ -138,7 +139,7 @@ class RequestHandler implements HandlerInterface
 	
 	/**
 	 * @param Exception $ex
-	 * @param type $id
+	 * @param string|int|null $id
 	 * @return ErrorData
 	 */
 	private function makeErrorData(Exception $ex, $id = null): ErrorData
@@ -149,7 +150,7 @@ class RequestHandler implements HandlerInterface
 			$data = $ex->getData();
 		}
 		
-		return new ErrorData($ex->getCode(), $ex->getMessage(), $data, $id);
+		return new ErrorData((int) $ex->getCode(), $ex->getMessage(), $data, $id);
 	}
 
 }
