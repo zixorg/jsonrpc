@@ -7,11 +7,10 @@ use Zixsihub\JsonRpc\Data\ArrayableInterface;
 use Zixsihub\JsonRpc\Data\ErrorData;
 use Zixsihub\JsonRpc\Data\RequestData;
 use Zixsihub\JsonRpc\Data\ResponseData;
+use Zixsihub\JsonRpc\Exception\JsonRpcException;
 use Zixsihub\JsonRpc\Http\RequestInterface;
 use Zixsihub\JsonRpc\Http\Response;
 use Zixsihub\JsonRpc\Http\ResponseInterface;
-use Zixsihub\JsonRpc\Exception\JsonRpcException;
-use Zixsihub\JsonRpc\Message\MessagesInterface;
 use Zixsihub\JsonRpc\Registry\RegistryInterface;
 use Zixsihub\JsonRpc\Validator\ValidatorInterface;
 
@@ -23,9 +22,6 @@ class RequestHandler implements HandlerInterface
 
 	/** @var ValidatorInterface */
 	private $validator;
-	
-	/** @var MessagesInterface */
-	private $messages;
 
 	/** @var bool */
 	private $batch = false;
@@ -34,15 +30,22 @@ class RequestHandler implements HandlerInterface
 	private $result = [];
 
 	/**
-	 * @param RegistryInterface $registry
 	 * @param ValidatorInterface $validator
-	 * @param MessagesInterface $messages
 	 */
-	public function __construct(RegistryInterface $registry, ValidatorInterface $validator, MessagesInterface $messages)
+	public function __construct(ValidatorInterface $validator)
+	{
+		$this->validator = $validator;
+	}
+	
+	/**
+	 * @param RegistryInterface $registry
+	 * @return HandlerInterface
+	 */
+	public function setRegistry(RegistryInterface $registry): HandlerInterface
 	{
 		$this->registry = $registry;
-		$this->validator = $validator;
-		$this->messages =$messages;
+		
+		return $this;
 	}
 
 	/**

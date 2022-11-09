@@ -8,11 +8,10 @@ interface RegistryInterface
 {
 
 	/**
-	 * @param string $name
-	 * @param string|object $instance
+	 * @param array $instances
 	 * @return RegistryInterface
 	 */
-	public function add(string $name, $instance): RegistryInterface;
+	public function fill(array $instances): RegistryInterface;
 	
 	/**
 	 * @param RequestData $request

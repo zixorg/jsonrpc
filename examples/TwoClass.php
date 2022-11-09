@@ -1,9 +1,5 @@
 <?php
 
-namespace Tests;
-
-use RuntimeException;
-
 class TwoClass
 {
 	
@@ -20,7 +16,7 @@ class TwoClass
 	 */
 	public function methodThree(): void
 	{
-		throw new RuntimeException('403 Access Denied', 403);
+		throw new \RuntimeException('403 Access Denied', 403);
 	}
 	
 	/**
@@ -28,7 +24,7 @@ class TwoClass
 	 */
 	public function methodFour(): void
 	{
-		throw new RuntimeException('404 Not Found', 404);
+		throw new \RuntimeException('404 Not Found', 404);
 	}
 	
 }

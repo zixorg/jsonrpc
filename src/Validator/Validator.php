@@ -6,7 +6,7 @@ use Zixsihub\JsonRpc\Http\RequestInterface;
 use Zixsihub\JsonRpc\Exception\JsonRpcException;
 use Zixsihub\JsonRpc\Validator\ValidatorInterface;
 
-class Validator implements ValidatorInterface
+final class Validator implements ValidatorInterface
 {
 	
 	/**
