@@ -5,7 +5,7 @@ namespace Zixsihub\JsonRpc\Registry;
 use ReflectionMethod;
 use ReflectionParameter;
 use Zixsihub\JsonRpc\Data\RequestData;
-use Zixsihub\JsonRpc\Exception\JsonRpcException;
+use Zixsihub\JsonRpc\Exception\RequestException;
 
 final class Registry implements RegistryInterface
 {
@@ -62,6 +62,7 @@ final class Registry implements RegistryInterface
 	/**
 	 * @param string $namespace
 	 * @return object
+	 * @throws RequestException
 	 */
 	private function getInstance(string $namespace): object
 	{
@@ -70,7 +71,7 @@ final class Registry implements RegistryInterface
 		}
 
 		if (!$this->has($namespace)) {
-			throw new JsonRpcException('Method not found', -32601);
+			throw RequestException::forMethodNotFound();
 		}
 		
 		$class = $this->classMap[$namespace];
@@ -80,7 +81,7 @@ final class Registry implements RegistryInterface
 		} elseif (is_object($class)) {
 			$this->instancesMap[$namespace] = $class;
 		} else {
-			throw new JsonRpcException('Method not found', -32601);
+			throw RequestException::forMethodNotFound();
 		}
 
 		return $this->instancesMap[$namespace];
@@ -90,12 +91,12 @@ final class Registry implements RegistryInterface
 	 * @param object $instance
 	 * @param RequestData $data
 	 * @return ReflectionMethod
-	 * @throws JsonRpcException
+	 * @throws RequestException
 	 */
 	private function getReflectionMethod(object $instance, RequestData $data): ReflectionMethod
 	{
 		if (empty($data->getMethodActionName()) || !method_exists($instance, $data->getMethodActionName())) {
-			throw new JsonRpcException('Method not found', -32601);
+			throw RequestException::forMethodNotFound();
 		}
 		
 		if (!array_key_exists($data->getMethodActionName(), $this->reflectionMap)) {
@@ -113,7 +114,7 @@ final class Registry implements RegistryInterface
 				continue;
 			}
 
-			throw new JsonRpcException('Invalid params', -32602,  $param->getName() . ' not found');
+			throw RequestException::forInvalidParams($param->getName() . ' not found');
 		}
 		
 		return $reflectionMethod;
@@ -123,24 +124,16 @@ final class Registry implements RegistryInterface
 	 * @param string $name
 	 * @param mixed $instance
 	 * @return void
-	 * @throws JsonRpcException
+	 * @throws RequestException
 	 */
 	private function validateInstance(string $name, $instance): void
 	{
 		if (array_key_exists($name, $this->classMap)) {
-			throw new JsonRpcException(
-				'Internal error', 
-				-32603, 
-				sprintf('Duplicate definition for name %s', $name)
-			);
+			throw RequestException::forInternalError(sprintf('Duplicate definition for name %s', $name));
 		}
 		
 		if (empty($instance) || (!is_string($instance) && !is_object($instance))) {
-			throw new JsonRpcException(
-				'Internal error', 
-				-32603, 
-				sprintf('Invalid instance definition for name %s', $name)
-			);
+			throw RequestException::forInternalError(sprintf('Invalid instance definition for name %s', $name));
 		}
 	}
 

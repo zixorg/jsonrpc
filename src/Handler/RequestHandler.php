@@ -3,11 +3,12 @@
 namespace Zixsihub\JsonRpc\Handler;
 
 use Exception;
+use Throwable;
 use Zixsihub\JsonRpc\Data\ArrayableInterface;
 use Zixsihub\JsonRpc\Data\ErrorData;
 use Zixsihub\JsonRpc\Data\RequestData;
 use Zixsihub\JsonRpc\Data\ResponseData;
-use Zixsihub\JsonRpc\Exception\JsonRpcException;
+use Zixsihub\JsonRpc\Exception\RequestExceptionInterface;
 use Zixsihub\JsonRpc\Http\RequestInterface;
 use Zixsihub\JsonRpc\Http\Response;
 use Zixsihub\JsonRpc\Http\ResponseInterface;
@@ -141,15 +142,15 @@ class RequestHandler implements HandlerInterface
 	}
 	
 	/**
-	 * @param Exception $ex
+	 * @param Throwable $ex
 	 * @param string|int|null $id
 	 * @return ErrorData
 	 */
-	private function makeErrorData(Exception $ex, $id = null): ErrorData
+	private function makeErrorData(Throwable $ex, $id = null): ErrorData
 	{
 		$data = null;
 		
-		if ($ex instanceof JsonRpcException) {
+		if ($ex instanceof RequestExceptionInterface) {
 			$data = $ex->getData();
 		}
 		
