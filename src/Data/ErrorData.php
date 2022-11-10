@@ -19,8 +19,8 @@ class ErrorData implements ArrayableInterface
 	/**
 	 * @param int $code
 	 * @param string $message
-	 * @param type $data
-	 * @param type $id
+	 * @param mixed $data
+	 * @param string|int|null $id
 	 */
 	public function __construct(int $code, string $message, $data = null, $id = null)
 	{

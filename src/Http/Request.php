@@ -24,7 +24,7 @@ class Request implements RequestInterface
 	}
 
 	/**
-	 * @return null|string
+	 * @return string|null
 	 */
 	public function getBody(): ?string
 	{
@@ -83,7 +83,7 @@ class Request implements RequestInterface
 	 */
 	public function __toString(): string
 	{
-		return (string) $this->body ?? '';
+		return (string) $this->body;
 	}
 
 }

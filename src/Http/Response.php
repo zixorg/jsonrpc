@@ -74,7 +74,7 @@ class Response implements ResponseInterface
 	 */
 	public function __toString(): string
 	{
-		return (string) $this->body ?? '';
+		return (string) $this->body;
 	}
 
 }

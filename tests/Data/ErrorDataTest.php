@@ -10,7 +10,7 @@ class ErrorDataTest extends TestCase
 	{
 		$data = new ErrorData(1, 'message', null, 2);
 
-		$this->assertInternalType(PHPUnit_Framework_Constraint_IsType::TYPE_ARRAY, $data->toArray());
+		$this->assertIsArray($data->toArray());
 	}
 	
 	public function testSetData()
@@ -35,7 +35,7 @@ class ErrorDataTest extends TestCase
 		$this->assertEquals($id, $array['id']);
 		
 		$this->assertArrayHasKey('error', $array);
-		$this->assertInternalType(PHPUnit_Framework_Constraint_IsType::TYPE_ARRAY, $array['error']);
+		$this->assertIsArray($array['error']);
 		
 		$this->assertArrayHasKey('code', $array['error']);
 		$this->assertEquals($code, $array['error']['code']);

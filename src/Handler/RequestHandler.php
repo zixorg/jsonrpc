@@ -3,15 +3,15 @@
 namespace Zixsihub\JsonRpc\Handler;
 
 use Exception;
+use Throwable;
 use Zixsihub\JsonRpc\Data\ArrayableInterface;
 use Zixsihub\JsonRpc\Data\ErrorData;
 use Zixsihub\JsonRpc\Data\RequestData;
 use Zixsihub\JsonRpc\Data\ResponseData;
+use Zixsihub\JsonRpc\Exception\RequestExceptionInterface;
 use Zixsihub\JsonRpc\Http\RequestInterface;
 use Zixsihub\JsonRpc\Http\Response;
 use Zixsihub\JsonRpc\Http\ResponseInterface;
-use Zixsihub\JsonRpc\Exception\JsonRpcException;
-use Zixsihub\JsonRpc\Message\MessagesInterface;
 use Zixsihub\JsonRpc\Registry\RegistryInterface;
 use Zixsihub\JsonRpc\Validator\ValidatorInterface;
 
@@ -23,9 +23,6 @@ class RequestHandler implements HandlerInterface
 
 	/** @var ValidatorInterface */
 	private $validator;
-	
-	/** @var MessagesInterface */
-	private $messages;
 
 	/** @var bool */
 	private $batch = false;
@@ -34,15 +31,22 @@ class RequestHandler implements HandlerInterface
 	private $result = [];
 
 	/**
-	 * @param RegistryInterface $registry
 	 * @param ValidatorInterface $validator
-	 * @param MessagesInterface $messages
 	 */
-	public function __construct(RegistryInterface $registry, ValidatorInterface $validator, MessagesInterface $messages)
+	public function __construct(ValidatorInterface $validator)
+	{
+		$this->validator = $validator;
+	}
+	
+	/**
+	 * @param RegistryInterface $registry
+	 * @return HandlerInterface
+	 */
+	public function setRegistry(RegistryInterface $registry): HandlerInterface
 	{
 		$this->registry = $registry;
-		$this->validator = $validator;
-		$this->messages =$messages;
+		
+		return $this;
 	}
 
 	/**
@@ -94,14 +98,15 @@ class RequestHandler implements HandlerInterface
 	private function makeDataPool(RequestInterface $request): array
 	{
 		$this->batch = is_array($request->getParsedBody());
+		$body = $request->getParsedBody();
 
-		if (!is_array($request->getParsedBody())) {
-			return [new RequestData($request->getParsedBody())];
+		if (!is_array($body)) {
+			return [new RequestData($body)];
 		}
 
 		$pool = [];
 
-		foreach ($request->getParsedBody() as $data) {
+		foreach ($body as $data) {
 			$pool[] = new RequestData($data);
 		}
 
@@ -137,19 +142,19 @@ class RequestHandler implements HandlerInterface
 	}
 	
 	/**
-	 * @param Exception $ex
-	 * @param type $id
+	 * @param Throwable $ex
+	 * @param string|int|null $id
 	 * @return ErrorData
 	 */
-	private function makeErrorData(Exception $ex, $id = null): ErrorData
+	private function makeErrorData(Throwable $ex, $id = null): ErrorData
 	{
 		$data = null;
 		
-		if ($ex instanceof JsonRpcException) {
+		if ($ex instanceof RequestExceptionInterface) {
 			$data = $ex->getData();
 		}
 		
-		return new ErrorData($ex->getCode(), $ex->getMessage(), $data, $id);
+		return new ErrorData((int) $ex->getCode(), $ex->getMessage(), $data, $id);
 	}
 
 }

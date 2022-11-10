@@ -14,17 +14,17 @@ class RequestData
 	/** @var string|int|null */
 	private $id;
 	
-	/** @var string|null */
-	private $method;
+	/** @var string */
+	private $method = '';
 
 	/** @var array */
 	private $params = [];
 	
-	/** @var string|null */
-	private $methodObjectName;
+	/** @var string */
+	private $methodObjectName = '';
 
-	/** @var string|null */
-	private $methodActionName;
+	/** @var string */
+	private $methodActionName = '';
 	
 	/** @var bool */
 	private $notification = true;
@@ -33,15 +33,6 @@ class RequestData
 	 * @param mixed $data
 	 */
 	public function __construct($data = [])
-	{
-		$this->parse($data);
-	}
-	
-	/**
-	 * @param mixed $data
-	 * @return void
-	 */
-	private function parse($data): void
 	{
 		$this->dataRaw = $data;
 		
@@ -87,9 +78,9 @@ class RequestData
 	}
 	
 	/**
-	 * @return string|null
+	 * @return string
 	 */
-	public function getMethod(): ?string
+	public function getMethod(): string
 	{
 		return $this->method;
 	}
@@ -111,17 +102,17 @@ class RequestData
 	}
 	
 	/**
-	 * @return string|null
+	 * @return string
 	 */
-	public function getMethodObjectName(): ?string
+	public function getMethodObjectName(): string
 	{
 		return $this->methodObjectName;
 	}
 
 	/**
-	 * @return string|null
+	 * @return string
 	 */
-	public function getMethodActionName(): ?string
+	public function getMethodActionName(): string
 	{
 		return $this->methodActionName;
 	}
@@ -149,7 +140,7 @@ class RequestData
 			array_unshift($parts, null);
 		} 
 		
-		$this->methodObjectName = $parts[0];
-		$this->methodActionName = $parts[1];
+		$this->methodObjectName = (string) $parts[0];
+		$this->methodActionName = (string) $parts[1];
 	}
 }

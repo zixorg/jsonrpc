@@ -2,23 +2,23 @@
 
 namespace Zixsihub\JsonRpc\Middleware;
 
-use Zixsihub\JsonRpc\Handler\RequestHandler;
+use Zixsihub\JsonRpc\Handler\HandlerInterface;
 use Zixsihub\JsonRpc\Http\RequestInterface;
 use Zixsihub\JsonRpc\Http\ResponseInterface;
 
 final class Pipeline
 {
-	/** @var RequestHandler */
-	private $handler = [];
+	/** @var HandlerInterface */
+	private $handler;
 	
 	/** @var MiddlewareInterface[] */
-	private $middlewares = [];
+	private $middlewares;
 	
 	/**
-	 * @param RequestHandler $handler
+	 * @param HandlerInterface $handler
 	 * @param MiddlewareInterface[] $middlewares
 	 */
-	public function __construct(RequestHandler $handler, array $middlewares)
+	public function __construct(HandlerInterface $handler, array $middlewares)
 	{
 		$this->handler = $handler;
 		$this->middlewares = $middlewares;

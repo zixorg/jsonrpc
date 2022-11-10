@@ -4,11 +4,10 @@ namespace Zixsihub\JsonRpc\Registry;
 
 use ReflectionMethod;
 use ReflectionParameter;
-use RuntimeException;
 use Zixsihub\JsonRpc\Data\RequestData;
-use Zixsihub\JsonRpc\Exception\JsonRpcException;
+use Zixsihub\JsonRpc\Exception\RequestException;
 
-class Registry implements RegistryInterface
+final class Registry implements RegistryInterface
 {
 
 	/** @var array */
@@ -19,24 +18,23 @@ class Registry implements RegistryInterface
 
 	/** @var array */
 	private $reflectionMap = [];
-
+	
 	/**
-	 * @param string $name
-	 * @param string|object $instance
+	 * @param array $instances
 	 * @return RegistryInterface
 	 */
-	public function add(string $name, $instance): RegistryInterface
+	public function fill(array $instances): RegistryInterface
 	{
-		if (!is_string($instance) && !is_object($instance)) {
-			throw new RuntimeException("Invalid class definition");
+		foreach ($instances as $name => $instance) {
+			$this->validateInstance($name, $instance);
+			
+			$this->classMap[$name] = $instance;
+			
+			if (is_object($instance)) {
+				$this->instancesMap[$name] = $instance;
+			}
 		}
-
-		$this->classMap[$name] = $instance;
-
-		if (is_object($instance)) {
-			$this->instancesMap[$name] = $instance;
-		}
-
+		
 		return $this;
 	}
 	
@@ -56,7 +54,7 @@ class Registry implements RegistryInterface
 	 * @param string $namespace
 	 * @return bool
 	 */
-	protected function has(string $namespace): bool
+	private function has(string $namespace): bool
 	{
 		return array_key_exists($namespace, $this->classMap);
 	}
@@ -64,21 +62,27 @@ class Registry implements RegistryInterface
 	/**
 	 * @param string $namespace
 	 * @return object
+	 * @throws RequestException
 	 */
-	protected function getInstance(string $namespace): object
+	private function getInstance(string $namespace): object
 	{
 		if (array_key_exists($namespace, $this->instancesMap)) {
 			return $this->instancesMap[$namespace];
 		}
 
 		if (!$this->has($namespace)) {
-			throw new JsonRpcException('Method not found', -32601);
+			throw RequestException::forMethodNotFound();
 		}
-
-		$this->instancesMap[$namespace] = 
-			is_string($this->classMap[$namespace]) 
-			? new $this->classMap[$namespace] 
-			: $this->classMap[$namespace];
+		
+		$class = $this->classMap[$namespace];
+		
+		if (is_string($class) && class_exists($class)) {
+			$this->instancesMap[$namespace] = new $class;
+		} elseif (is_object($class)) {
+			$this->instancesMap[$namespace] = $class;
+		} else {
+			throw RequestException::forMethodNotFound();
+		}
 
 		return $this->instancesMap[$namespace];
 	}
@@ -87,12 +91,12 @@ class Registry implements RegistryInterface
 	 * @param object $instance
 	 * @param RequestData $data
 	 * @return ReflectionMethod
-	 * @throws JsonRpcException
+	 * @throws RequestException
 	 */
-	protected function getReflectionMethod(object $instance, RequestData $data): ReflectionMethod
+	private function getReflectionMethod(object $instance, RequestData $data): ReflectionMethod
 	{
-		if (!method_exists($instance, $data->getMethodActionName())) {
-			throw new JsonRpcException('Method not found', -32601);
+		if (empty($data->getMethodActionName()) || !method_exists($instance, $data->getMethodActionName())) {
+			throw RequestException::forMethodNotFound();
 		}
 		
 		if (!array_key_exists($data->getMethodActionName(), $this->reflectionMap)) {
@@ -110,10 +114,27 @@ class Registry implements RegistryInterface
 				continue;
 			}
 
-			throw new JsonRpcException('Invalid params', -32602,  $param->getName() . ' not found');
+			throw RequestException::forInvalidParams($param->getName() . ' not found');
 		}
 		
 		return $reflectionMethod;
+	}
+	
+	/**
+	 * @param string $name
+	 * @param mixed $instance
+	 * @return void
+	 * @throws RequestException
+	 */
+	private function validateInstance(string $name, $instance): void
+	{
+		if (array_key_exists($name, $this->classMap)) {
+			throw RequestException::forInternalError(sprintf('Duplicate definition for name %s', $name));
+		}
+		
+		if (empty($instance) || (!is_string($instance) && !is_object($instance))) {
+			throw RequestException::forInternalError(sprintf('Invalid instance definition for name %s', $name));
+		}
 	}
 
 }
